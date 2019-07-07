@@ -19,9 +19,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.backend=astrolab"
-      - "traefik.frontend.rule=Host:astrolab.ullaakut.eu"
-      - "traefik.frontend.redirect.regex=^https?://astrolab.ullaakut.eu/(.*)"
-      - "traefik.frontend.redirect.replacement=https://astrolab.ullaakut.eu/$${1}"
+      - "traefik.frontend.rule=Host:astronomer.ullaakut.eu"
+      - "traefik.frontend.redirect.regex=^https?://astronomer.ullaakut.eu/(.*)"
+      - "traefik.frontend.redirect.replacement=https://astronomer.ullaakut.eu/$${1}"
       - "traefik.port=80"
     ports:
       - "80"
