@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  proxy:
+    image: traefik:1.7.12
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
+    networks:
+      - web
+
+  astrolab:
+    build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=astrolab"
+      - "traefik.frontend.rule=Host:astrolab.ullaakut.eu"
+      - "traefik.frontend.redirect.regex=^https?://astrolab.ullaakut.eu/(.*)"
+      - "traefik.frontend.redirect.replacement=https://astrolab.ullaakut.eu/$${1}"
+      - "traefik.port=80"
+    ports:
+      - "80"
+    volumes:
+      - "./reports:/reports"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
