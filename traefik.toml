@@ -1,32 +1,28 @@
-debug = true
 logLevel = "DEBUG"
 
 defaultEntryPoints = ["https", "http"]
 
 [entryPoints]
-    [entryPoints.http]
+  [entryPoints.http]
     address = ":80"
-        [entryPoints.http.redirect]
-        entryPoint = "https"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
 
-    [entryPoints.https]
+  [entryPoints.https]
     address = ":443"
     [entryPoints.https.tls]
 
 [retry]
 
 [docker]
-endpoint = "unix:///var/run/docker.sock"
-domain = "ullaakut.eu"
-watch = true
-exposedByDefault = false
+  endpoint = "unix:///var/run/docker.sock"
+  exposedByDefault = false
 
 [acme]
-acmeLogging = true
-onHostRule = true
-email = "brendan.le-glaunec@epitech.eu"
-storage = "acme.json"
-entryPoint = "https"
-caServer = "https://acme-v02.api.letsencrypt.org/directory"
+  email = "brendan.le-glaunec@epitech.eu"
+  caServer = "https://acme-v02.api.letsencrypt.org/directory"
+  storage = "acme.json"
+  onHostRule = true
+  entryPoint = "https"
     [acme.httpChallenge]
-    entryPoint = "http"
+      entryPoint = "http"
