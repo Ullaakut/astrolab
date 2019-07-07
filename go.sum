@@ -107,6 +107,12 @@ github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ullaakut/astronomer v1.0.1-0.20190706172117-9ad11184f66f h1:uAICOyTam9VsA41R0D1KuCWKLWaHtHUR7TcqzaN2e7Q=
 github.com/ullaakut/astronomer v1.0.1-0.20190706172117-9ad11184f66f/go.mod h1:D9pXStM83+ci4+peH7EsDdtTKSECHbTfw2Khkbg6+Wo=
+github.com/ullaakut/astronomer v1.0.1-0.20190706173004-d590ca48a492 h1:dF/k03m5ZySr2AvRDVw1WzKryOSIdQ0ANmBxyse6Xx8=
+github.com/ullaakut/astronomer v1.0.1-0.20190706173004-d590ca48a492/go.mod h1:D9pXStM83+ci4+peH7EsDdtTKSECHbTfw2Khkbg6+Wo=
+github.com/ullaakut/astronomer v1.0.1-0.20190707070934-5d5a219be1b2 h1:NTm/eqzyRWH7n7fX5gTqj2lFgkwLBv2SZVGLmFEi8EY=
+github.com/ullaakut/astronomer v1.0.1-0.20190707070934-5d5a219be1b2/go.mod h1:D9pXStM83+ci4+peH7EsDdtTKSECHbTfw2Khkbg6+Wo=
+github.com/ullaakut/astronomer v1.0.1-0.20190707074612-faf0bdc6ba8c h1:7lgcDtlsKPnSf2rs5ILuxC5lDKHjWvGFTD7l2bZa+9E=
+github.com/ullaakut/astronomer v1.0.1-0.20190707074612-faf0bdc6ba8c/go.mod h1:D9pXStM83+ci4+peH7EsDdtTKSECHbTfw2Khkbg6+Wo=
 github.com/ullaakut/disgo v0.3.0 h1:2zrEyNBfPRgDVDgzM/qLXZ4Yqt3Lxz7ERvZUSmqSY2M=
 github.com/ullaakut/disgo v0.3.0/go.mod h1:UOgLVyqihzJ7yihrHjYZikivT+AHb9NhT3r1OyPCJqg=
 github.com/vbauerster/mpb/v4 v4.8.4 h1:KaZ/bVd3m7p2qy1R487T53rouanep/AWjnaU7fv/c4k=

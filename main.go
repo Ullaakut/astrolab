@@ -94,6 +94,8 @@ func main() {
 			Label:         "astro rating",
 		}
 
+		log.Printf("Serving badge for %s/%s", repoOwner, repoName)
+
 		report, err := fetchReport(repoOwner, repoName)
 		if err != nil {
 			badgeData.Color = "inactive"
@@ -119,7 +121,7 @@ func main() {
 		w.Write(data)
 	})
 
-	log.Println("Listining on :80")
+	log.Println("Listening on :80")
 
 	log.Fatal(http.ListenAndServe(":80", nil))
 }

@@ -12,9 +12,6 @@ defaultEntryPoints = ["https", "http"]
     [entryPoints.https]
     address = ":443"
     [entryPoints.https.tls]
-      [[entryPoints.https.tls.certificates]]
-      certFile = "../dump/private/astronomer.ullaakut.eu.crt"
-      keyFile = "../dump/certs/astronomer.ullaakut.eu.key"
 
 [retry]
 
@@ -26,6 +23,7 @@ exposedByDefault = false
 
 [acme]
 acmeLogging = true
+onHostRule = true
 email = "brendan.le-glaunec@epitech.eu"
 storage = "acme.json"
 entryPoint = "https"
