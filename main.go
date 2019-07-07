@@ -33,14 +33,14 @@ func storeReport(report *astronomer.SignedReport) error {
 }
 
 func fetchReport(repoOwner, repoName string) (*astronomer.SignedReport, error) {
-	var report *astronomer.SignedReport
+	report := &astronomer.SignedReport{}
 
 	data, err := ioutil.ReadFile(fmt.Sprintf("reports/%s-%s", repoOwner, repoName))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read report: %v", err)
 	}
 
-	err = json.Unmarshal(data, &report)
+	err = json.Unmarshal(data, report)
 	if err != nil {
 		return nil, fmt.Errorf("unable to marshal report: %v", err)
 	}
@@ -57,8 +57,8 @@ func main() {
 			return
 		}
 
-		var signedReport *astronomer.SignedReport
-		err = json.Unmarshal(data, &signedReport)
+		signedReport := &astronomer.SignedReport{}
+		err = json.Unmarshal(data, signedReport)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
