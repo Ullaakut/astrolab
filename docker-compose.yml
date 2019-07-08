@@ -16,6 +16,7 @@ services:
 
   astrolab:
     build: .
+    restart: always
     labels:
       - "traefik.enable=true"
       - "traefik.backend=astrolab"
