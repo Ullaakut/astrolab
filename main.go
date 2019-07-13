@@ -140,5 +140,5 @@ func main() {
 	e.POST("/", handleReport)
 	e.GET("/shields", handleBadge)
 
-	e.Logger.Fatal(e.Start("0.0.0.0:4242"))
+	e.Logger.Fatal(e.Start(":80"))
 }

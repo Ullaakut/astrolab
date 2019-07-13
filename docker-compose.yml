@@ -29,6 +29,21 @@ services:
     networks:
       - web
 
+  astrolab_staging:
+    build: .
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=astrolab_staging"
+      - "traefik.frontend.rule=Host:ullaakut.eu"
+      - "traefik.port=80"
+    ports:
+      - "80"
+    volumes:
+      - "./reports:/reports"
+    networks:
+      - web
+
 networks:
   web:
     external: true
