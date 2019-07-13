@@ -124,7 +124,7 @@ func handleBadge(ctx echo.Context) error {
 		badgeData.Message = percentToLetterGrade(report.Factors[trust.Overall].TrustPercent)
 	}
 
-	return ctx.JSON(http.StatusOK, report)
+	return ctx.JSON(http.StatusOK, badgeData)
 }
 
 func main() {
