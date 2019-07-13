@@ -4,12 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"os"
 
+	echo "github.com/labstack/echo/v4"
+	middleware "github.com/labstack/echo/v4/middleware"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	astronomer "github.com/ullaakut/astronomer/pkg/signature"
 	"github.com/ullaakut/astronomer/pkg/trust"
 )
+
+var log *zerolog.Logger
 
 type astroBadge struct {
 	SchemaVersion int    `json:"schemaVersion"`
@@ -48,80 +54,91 @@ func fetchReport(repoOwner, repoName string) (*astronomer.SignedReport, error) {
 	return report, nil
 }
 
-func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		data, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+func percentToLetterGrade(percent float64) string {
+	switch {
+	case percent > 0.8:
+		return "A"
+	case percent > 0.6:
+		return "B"
+	case percent > 0.4:
+		return "C"
+	case percent > 0.2:
+		return "D"
+	default:
+		return "E"
+	}
+}
 
-		signedReport := &astronomer.SignedReport{}
-		err = json.Unmarshal(data, signedReport)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
-			return
-		}
+func handleReport(ctx echo.Context) error {
+	var signedReport astronomer.SignedReport
+	err := ctx.Bind(&signedReport)
+	if err != nil {
+		err = errors.Wrap(err, "could not parse blog post from request body")
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-		err = astronomer.Check(signedReport)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
+	err = astronomer.Check(&signedReport)
+	if err != nil {
+		err = errors.Wrap(err, "invalid signature for report")
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
 
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "OK")
+	err = storeReport(&signedReport)
+	if err != nil {
+		err = errors.Wrap(err, "unable to write report to filesystem")
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
-		log.Printf("Received valid report for %s/%s", signedReport.RepositoryOwner, signedReport.RepositoryName)
+	return ctx.JSON(http.StatusCreated, signedReport)
+}
 
-		err = storeReport(signedReport)
-		if err != nil {
-			log.Println("Unable to write report to filesystem:", err)
-		}
+func handleBadge(ctx echo.Context) error {
+	repoOwner := ctx.QueryParam("owner")
+	if len(repoOwner) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "owner not set in request context")
+	}
 
-		return
-	})
+	repoName := ctx.QueryParam("name")
+	if len(repoName) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "repository name not set in request context")
+	}
 
-	http.HandleFunc("/shields", func(w http.ResponseWriter, r *http.Request) {
-		repoOwner := r.URL.Query().Get("owner")
-		repoName := r.URL.Query().Get("name")
+	badgeData := &astroBadge{
+		SchemaVersion: 1,
+		Label:         "astro rating",
+	}
 
-		badgeData := &astroBadge{
-			SchemaVersion: 1,
-			Label:         "astro rating",
-		}
-
-		log.Printf("Serving badge for %s/%s", repoOwner, repoName)
-
-		report, err := fetchReport(repoOwner, repoName)
-		if err != nil {
-			badgeData.Color = "inactive"
-			badgeData.Message = "unavailable"
+	report, err := fetchReport(repoOwner, repoName)
+	if err != nil {
+		badgeData.Color = "inactive"
+		badgeData.Message = "unavailable"
+	} else {
+		if report.Factors[trust.Overall].TrustPercent > 0.6 {
+			badgeData.Color = "success"
+		} else if report.Factors[trust.Overall].TrustPercent > 0.4 {
+			badgeData.Color = "yellow"
 		} else {
-			if report.Factors[trust.Overall].TrustPercent >= 0.75 {
-				badgeData.Color = "success"
-			} else if report.Factors[trust.Overall].TrustPercent >= 0.5 {
-				badgeData.Color = "yellow"
-			} else {
-				badgeData.Color = "red"
-			}
-
-			badgeData.Message = fmt.Sprintf("%1.f%%", report.Factors[trust.Overall].TrustPercent*100)
+			badgeData.Color = "red"
 		}
 
-		data, err := json.Marshal(badgeData)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		badgeData.Message = percentToLetterGrade(report.Factors[trust.Overall].TrustPercent)
+	}
 
-		w.Write(data)
-	})
+	return ctx.JSON(http.StatusOK, report)
+}
 
-	log.Println("Listening on :80")
+func main() {
+	e := echo.New()
+	e.Use(middleware.Recover())
+	e.Use(middleware.Gzip())
 
-	log.Fatal(http.ListenAndServe(":80", nil))
+	// Use zerolog for debugging HTTP requests
+	log = NewZeroLog(os.Stderr)
+	e.Logger.SetLevel(5) // Disable default logging
+	e.Use(HTTPLogger(log))
+
+	e.POST("/", handleReport)
+	e.GET("/shields", handleBadge)
+
+	e.Logger.Fatal(e.Start("0.0.0.0:4242"))
 }
