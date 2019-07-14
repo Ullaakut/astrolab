@@ -74,20 +74,31 @@ func handleReport(ctx echo.Context) error {
 	err := ctx.Bind(&signedReport)
 	if err != nil {
 		err = errors.Wrap(err, "could not parse blog post from request body")
+		log.Error().Err(err).Msg("ALERT")
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	logger := log.With().
+		Str("owner", signedReport.RepositoryOwner).
+		Str("name", signedReport.RepositoryName).
+		Float64("trust", signedReport.Factors[trust.Overall].TrustPercent).
+		Logger()
 
 	err = astronomer.Check(&signedReport)
 	if err != nil {
 		err = errors.Wrap(err, "invalid signature for report")
+		logger.Error().Err(err).Msg("ALERT")
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
 	err = storeReport(&signedReport)
 	if err != nil {
 		err = errors.Wrap(err, "unable to write report to filesystem")
+		logger.Error().Err(err).Msg("ALERT")
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	logger.Info().Msg("Report stored successfully")
 
 	return ctx.JSON(http.StatusCreated, signedReport)
 }
